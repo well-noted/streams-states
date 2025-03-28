@@ -1,0 +1,136 @@
+created: 20170922203553093
+list-after: $:/core/ui/ViewTemplate/body
+modified: 20250328193152735
+tags: $:/tags/ViewTemplate $:/tags/Global
+title: $:/plugins/sq/streams/stream-view-template
+
+\define stream-dynamic-styles(
+  outlinerID,
+  enableEditToolbar,
+  nodeMaxWidth
+)
+<%if [[$enableEditToolbar$]compare:string:eq[no]] %>
+  <style>
+    #$outlinerID$ .stream-node-block .tc-editor-toolbar {
+      display: none;
+    }
+  </style>
+<%endif%>
+<style>
+  #$outlinerID$ .stream-node-block {
+    max-width: $nodeMaxWidth$;
+  }
+  #$outlinerID$ span.sq-breadcrumbs-fragment {
+    max-width: calc($nodeMaxWidth$ - 50px);
+  }
+</style>
+\end
+
+\procedure streams(
+  id:"tiddler-to-hold-stream-list",
+  enableEditToolbar:"no",
+  nodeMaxWidth:100%,
+  newNodeTitle:"""<<stream-root-title>>/<<now "[UTC]YYYY0MM0DD0hh0mm0ssXXX">>""",
+  newNodeTiddlerTemplate,
+  caption:""
+)
+\whitespace trim
+<$set name=outlinerID value=<<id>> emptyValue=<<qualify "streams">>>
+  <div id=<<outlinerID>>>
+    <$transclude
+      $variable="stream-dynamic-styles"
+      outlinerID=<<outlinerID>>
+      enableEditToolbar=<<enableEditToolbar>>
+      nodeMaxWidth=<<nodeMaxWidth>>
+    />
+
+<$tiddler tiddler=<<id>>>
+<div class="se-section">
+  <header class="se-sectionheader">
+    <$button class="tc-btn-invisible" actions="""<$action-setfield $field="se-collapsed" $value={{{ [<currentTiddler>get[se-collapsed]match[yes]then[no]else[yes]] }}}/>""">
+      <h2>
+        <$list filter="[<caption>!is[blank]]" emptyMessage={{{ [<currentTiddler>has[caption]then{!!caption}else{!!title}] }}}>
+          <<caption>>
+        </$list>
+      </h2>
+      <$list filter="[<currentTiddler>get[se-collapsed]match[yes]]" emptyMessage="{{$:/core/images/down-arrow}}" variable="null">
+        {{$:/core/images/right-arrow}}
+      </$list>
+    </$button>
+  </header>
+
+  <$list filter="[<currentTiddler>!has[se-collapsed]] [<currentTiddler>get[se-collapsed]!match[yes]]" variable="null">
+    <div class="se-sectionbody">
+      <!-- Check stream-type and conditionally render -->
+      <$list filter="[<currentTiddler>get[stream-type]match[fused]]" variable="NULL" emptyMessage="""
+        <!-- Default node-list template using native streams -->
+        <$transclude $tiddler="$:/plugins/sq/streams/nodes-list-template"/>
+      """>
+        <!-- Direct transclude for fused nodes -->
+        {{||$:/plugins/NoteStreams/streams-states/editorTemplate}}
+        {{||$:/plugins/NoteStreams/streams-states/unfuse}}
+      </$list>
+    </div>
+  </$list>
+</div>
+</$tiddler>
+</div>
+</$set>
+\end
+
+\procedure streams-breadcrumbs(
+  id,
+  enableEditToolbar,
+  nodeMaxWidth,
+  newNodeTitle,
+  newNodeTiddlerTemplate,
+  caption
+)
+<$tiddler tiddler=<<id>> >
+<<stream-show-breadcrumbs>>
+
+<$transclude
+  $variable="streams"
+  id=<<id>>
+  enableEditToolbar=<<enableEditToolbar>>
+  nodeMaxWidth=<<nodeMaxWidth>>
+  newNodeTitle=<<newNodeTitle>>
+  newNodeTiddlerTemplate=<<newNodeTiddlerTemplate>>
+  caption=<<caption>>
+/>
+</$tiddler>
+\end
+
+
+
+
+<$list filter="""[<folded-state>get[text]!is[blank]else[show]!match[hide]]""" variable="_NULL">
+<$list filter="""[all[current]subfilter{$:/config/sq/streams/stream-enable-filter}]""">
+{{||$:/plugins/sq/streams/nodes-list-template}}
+</$list>
+</$list>
+
+<style>
+.se-section {
+  margin-bottom: 5px;
+}
+
+.se-sectionheader button {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 3px;
+}
+
+.se-sectionheader button h2 {
+  margin: 0;
+  padding: 0;
+  text-align: left;
+}
+
+.se-sectionbody {
+  padding: 8px;
+}
+</style>

@@ -1,0 +1,44 @@
+created: 20250201223201780
+modified: 20250328191319245
+stream-type: default
+tags: 
+title: $:/plugins/NoteStreams/streams-states/editorTemplate
+
+<div class="se-section">
+    <$vars currentTiddler=<<stream-root-title>> 
+           editTid={{{ [[$:/temp/edit/]addsuffix<stream-root-title>] }}}
+           stateTid={{{ [[$:/state/edit/]addsuffix<stream-root-title>] }}}>
+        
+        <$reveal stateTitle=<<stateTid>> type="nomatch" text="edit">
+            <div class="se-section-toolbar">
+                <$button class="tc-btn-invisible">
+                    <$action-setfield $tiddler=<<stateTid>> text="edit"/>
+                    <$action-setfield $tiddler=<<editTid>> text={{{[<currentTiddler>get[text]]}}}/>
+                    {{$:/core/images/edit-button}}
+                </$button>
+            </div>
+            <$transclude tiddler=<<currentTiddler>> mode="block"/>
+        </$reveal>
+        
+        <$reveal stateTitle=<<stateTid>> type="match" text="edit">
+            <div class="se-section-edit">
+                <$edit-text tiddler=<<editTid>> class="tc-edit-texteditor"/>
+                <div class="se-section-toolbar">
+                    <$button class="tc-btn-invisible">
+                        <$action-deletetiddler $tiddler=<<editTid>>/>
+                        <$action-deletetiddler $tiddler=<<stateTid>>/>
+                        {{$:/core/images/cancel-button}}
+                    </$button>
+                    
+                    <$button class="tc-btn-invisible">
+                        <$action-setfield $tiddler=<<currentTiddler>> text={{{[<editTid>get[text]]}}}/>
+                        <$action-deletetiddler $tiddler=<<editTid>>/>
+                        <$action-deletetiddler $tiddler=<<stateTid>>/>
+                        {{$:/core/images/done-button}}
+                    </$button>
+                </div>
+            </div>
+        </$reveal>
+        
+    </$vars>
+</div>
