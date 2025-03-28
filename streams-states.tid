@@ -1,0 +1,11 @@
+created: 20250328195606664
+description: an early demo
+modified: 20250328195717471
+plugin-priority: 9001
+plugin-type: plugin
+tags: 
+title: $:/plugins/NoteStreams/streams-states
+type: application/json
+version: .3
+
+{"tiddlers": {}}
